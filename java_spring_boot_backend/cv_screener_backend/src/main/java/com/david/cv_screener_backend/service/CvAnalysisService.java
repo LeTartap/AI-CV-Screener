@@ -3,6 +3,7 @@ package com.david.cv_screener_backend.service;
 
 import com.david.cv_screener_backend.dto.AnalysisResponse;
 import com.david.cv_screener_backend.dto.AnalysisResponse.SkillDTO;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
