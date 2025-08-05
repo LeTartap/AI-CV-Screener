@@ -2,6 +2,7 @@ package com.david.cv_screener_backend.controller;
 
 import com.david.cv_screener_backend.dto.AnalysisResponse;
 import com.david.cv_screener_backend.model.Candidate;
+import com.david.cv_screener_backend.repository.CandidateRepository;
 import com.david.cv_screener_backend.service.CandidateSaveService;
 import com.david.cv_screener_backend.service.CvAnalysisService;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,15 @@ public class CandidateController {
 
     private final CvAnalysisService analysisService;
     private final CandidateSaveService saveService;
+    private final CandidateRepository candidateRepository; // ✅
 
-    public CandidateController(CvAnalysisService analysisService, CandidateSaveService saveService) {
+
+    public CandidateController(CvAnalysisService analysisService,
+                               CandidateSaveService saveService,
+                               CandidateRepository candidateRepository) {
         this.analysisService = analysisService;
         this.saveService = saveService;
+        this.candidateRepository = candidateRepository;
     }
 
     @PostMapping("/upload")
@@ -52,11 +58,18 @@ public class CandidateController {
         // 4️⃣ Return saved entity
         return ResponseEntity.ok(savedCandidate);
     }
+
     @GetMapping("/ranking")
     public ResponseEntity<List<Candidate>> getRanking() {
         List<Candidate> ranking = saveService.getRanking();
         return ResponseEntity.ok(ranking);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Candidate> getCandidateById(@PathVariable Long id) {
+        return candidateRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
 }
