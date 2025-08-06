@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./react_frontend/cv-screener-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./java_spring_boot_backend/cv_screener_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PYTHON_SERVICE_URL=http://python:8000
+    depends_on:
+      - python
+
+  python:
+    build:
+      context: ./python_ai_cv_microservice
+    ports:
+      - "8000:8000"
+
+
+volumes:
+  postgres_data:
