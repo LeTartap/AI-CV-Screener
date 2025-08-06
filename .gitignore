@@ -52,3 +52,4 @@ Thumbs.db
 application-local.properties
 application-dev.properties
 application-prod.properties
+/java_spring_boot_backend/cv_screener_backend/uploads

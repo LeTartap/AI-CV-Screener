@@ -1,5 +1,6 @@
 package com.david.cv_screener_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class InterviewQuestion {
     private String question;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "candidate_id")
     private Candidate candidate;
 }

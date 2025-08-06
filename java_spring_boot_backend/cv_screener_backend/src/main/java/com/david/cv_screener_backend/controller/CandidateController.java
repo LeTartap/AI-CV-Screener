@@ -65,6 +65,7 @@ public class CandidateController {
         return ResponseEntity.ok(ranking);
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<Candidate> getCandidateById(@PathVariable Long id) {
         return candidateRepository.findById(id)
