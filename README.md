@@ -95,7 +95,7 @@ uvicorn app.main:app --reload
 ### **Frontend (React + Vite)**
 
 ```bash
-cd react_frontend
+cd react_frontend\cv-screener-frontend
 npm install
 npm run dev
 ```
