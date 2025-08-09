@@ -13,24 +13,51 @@ The application is built on a modern microservices architecture, ensuring a clea
 
 ```mermaid
 sequenceDiagram
+    participant User
     participant Frontend (React)
     participant Backend (Spring Boot)
-    participant AI Microservice (Python/FastAPI)
     participant Database (PostgreSQL)
 
-    Note over Frontend, Database: System Architecture
+    %% --- Authentication Flow --- %%
 
-    Frontend->>+Backend: 1. Upload CV (+ name, email)
-    Backend->>+AI Microservice: 2. Forward CV for analysis
-    AI Microservice-->>-Backend: 3. Return skills, score, feedback
-    Backend->>+Database: 4. Save candidate & analysis
-    Database-->>-Backend: Persisted data
-    Backend-->>-Frontend: 5. Confirm upload
+    Note over User, Database: 1. Authentication Flow
 
-    Frontend->>+Backend: 6. Request ranking
-    Backend->>+Database: 7. Fetch ranked candidates
-    Database-->>-Backend: Return candidates
-    Backend-->>-Frontend: 8. Send ranked list
+    User->>+Frontend: Fills out registration form
+    Frontend->>+Backend: POST /auth/register (name, email, password)
+    Backend->>Backend: Hash password (BCrypt)
+    Backend->>+Database: INSERT into users table
+    Database-->>-Backend: Confirm user creation
+    Backend-->>-Frontend: 200 OK
+    Frontend-->>-User: Show "Registration Successful"
+
+    User->>+Frontend: Fills out login form
+    Frontend->>+Backend: POST /auth/login (email, password)
+    Backend->>Backend: AuthenticationManager validates credentials
+    Backend->>+Database: SELECT user by email
+    Database-->>-Backend: Return user data
+    Backend->>Backend: JwtService generates JWT
+    Backend-->>-Frontend: 200 OK (AuthResponse with accessToken)
+    Note over Frontend: Store JWT in localStorage
+    Frontend-->>-User: Redirect to main application
+
+    %% --- Authenticated API Flow (Example: Get Ranking) --- %%
+
+    Note over User, Database: 2. Authenticated API Flow
+
+    User->>+Frontend: Navigates to Ranking page
+    Note over Frontend: Retrieve JWT from localStorage
+    Frontend->>+Backend: GET /candidates/ranking <br/> (Header: Authorization: Bearer JWT)
+    Backend->>Backend: JwtAuthFilter validates token
+    alt Token is Valid
+        Backend->>Backend: Set SecurityContext
+        Backend->>+Database: SELECT candidates ORDER BY score
+        Database-->>-Backend: Return candidate list
+        Backend-->>-Frontend: 200 OK (Candidate data)
+        Frontend-->>-User: Display ranking table
+    else Token is Invalid/Expired
+        Backend-->>-Frontend: 401 Unauthorized
+        Frontend-->>-User: Redirect to Login page
+    end
 ```
 
 -----
