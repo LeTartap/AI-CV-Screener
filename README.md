@@ -11,56 +11,7 @@ An intelligent, full-stack application designed to automate and streamline the i
 
 The application is built on a modern microservices architecture, ensuring a clear separation of concerns between the user interface, business logic, and the AI analysis engine.
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Frontend (React)
-    participant Backend (Spring Boot)
-    participant Database (PostgreSQL)
 
-    %% --- Authentication Flow --- %%
-
-    Note over User, Database: 1. Authentication Flow
-
-    User->>+Frontend: Fills out registration form
-    Frontend->>+Backend: POST /auth/register (name, email, password)
-    Backend->>Backend: Hash password (BCrypt)
-    Backend->>+Database: INSERT into users table
-    Database-->>-Backend: Confirm user creation
-    Backend-->>-Frontend: 200 OK
-    Frontend-->>-User: Show "Registration Successful"
-
-    User->>+Frontend: Fills out login form
-    Frontend->>+Backend: POST /auth/login (email, password)
-    Backend->>Backend: AuthenticationManager validates credentials
-    Backend->>+Database: SELECT user by email
-    Database-->>-Backend: Return user data
-    Backend->>Backend: JwtService generates JWT
-    Backend-->>-Frontend: 200 OK (AuthResponse with accessToken)
-    Note over Frontend: Store JWT in localStorage
-    Frontend-->>-User: Redirect to main application
-
-    %% --- Authenticated API Flow (Example: Get Ranking) --- %%
-
-    Note over User, Database: 2. Authenticated API Flow
-
-    User->>+Frontend: Navigates to Ranking page
-    Note over Frontend: Retrieve JWT from localStorage
-    Frontend->>+Backend: GET /candidates/ranking <br/> (Header: Authorization: Bearer JWT)
-    Backend->>Backend: JwtAuthFilter validates token
-    alt Token is Valid
-        Backend->>Backend: Set SecurityContext
-        Backend->>+Database: SELECT candidates ORDER BY score
-        Database-->>-Backend: Return candidate list
-        Backend-->>-Frontend: 200 OK (Candidate data)
-        Frontend-->>-User: Display ranking table
-    else Token is Invalid/Expired
-        Backend-->>-Frontend: 401 Unauthorized
-        Frontend-->>-User: Redirect to Login page
-    end
-```
-
------
 
 ## ✨ Features
 
