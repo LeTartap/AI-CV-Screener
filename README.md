@@ -1,119 +1,145 @@
+
 # AI CV Screener & Ranking Bot
 
-## 📌 Overview
-The AI CV Screener is a **full-stack application** that:
-- Parses candidate CVs to extract technical skills, relevant coursework, and keywords.
-- Uses an AI-powered microservice to **score** and **rank** candidates.
-- Stores candidates in a database and provides a ranking API.
-- Displays the rankings and candidate details in a React frontend.
+[](https://www.google.com/search?q=https://github.com/letartap/ai-cv-screener/actions/workflows/ci-cd.yml)
 
----
+An intelligent, full-stack application designed to automate and streamline the initial CV screening process. This tool parses candidate resumes, scores them based on relevant skills, and provides a ranked list to recruiters, complete with generated feedback and interview questions.
+
+-----
 
 ## 🏗️ Architecture
 
-```plaintext
-[Placeholder for Architecture Diagram]
-````
+The application is built on a modern microservices architecture, ensuring a clear separation of concerns between the user interface, business logic, and the AI analysis engine.
 
-*(See `/docs/architecture.puml` for the PlantUML source)*
+```mermaid
+sequenceDiagram
+    participant Frontend (React)
+    participant Backend (Spring Boot)
+    participant AI Microservice (Python/FastAPI)
+    participant Database (PostgreSQL)
 
----
+    Note over Frontend, Database: System Architecture
 
-## 🔹 Components
+    Frontend->>+Backend: 1. Upload CV (+ name, email)
+    Backend->>+AI Microservice: 2. Forward CV for analysis
+    AI Microservice-->>-Backend: 3. Return skills, score, feedback
+    Backend->>+Database: 4. Save candidate & analysis
+    Database-->>-Backend: Persisted data
+    Backend-->>-Frontend: 5. Confirm upload
 
-### 1. **Frontend (React + Vite)**
+    Frontend->>+Backend: 6. Request ranking
+    Backend->>+Database: 7. Fetch ranked candidates
+    Database-->>-Backend: Return candidates
+    Backend-->>-Frontend: 8. Send ranked list
+```
 
-* Pages:
+-----
 
-  * **Upload Page** → Upload CV + candidate info
-  * **Ranking Page** → View candidate ranking
-  * **Candidate Details Page** → View full details, skills, feedback
-* Communicates with Spring Boot backend via REST API.
+## ✨ Features
 
----
+  * **CV Upload**: Supports both PDF and DOCX file formats.
+  * **Automated Skill Extraction**: Intelligently parses resumes to identify key technical skills (e.g., Java, Spring Boot, React).
+  * **Candidate Scoring & Ranking**: Assigns a score to each candidate based on predefined skill weights and provides a ranked list.
+  * **AI-Generated Feedback**: Provides constructive feedback for each candidate.
+  * **Generated Interview Questions**: Creates relevant technical questions based on the skills found in the CV.
+  * **Secure Authentication**: Features JWT-based authentication and authorization, with secure endpoints for user registration and login.
+  * **Role-Based Access Control**: Defines user roles (`ADMIN`, `RECRUITER`) to manage permissions.
+  * **CI/CD Pipeline**: Automated build and deployment pipeline using GitHub Actions and Docker Compose.
 
-### 2. **Backend (Spring Boot)**
+-----
 
-* **Controllers**
+## 🛠️ Technology Stack
 
-  * `CandidateController` handles upload, ranking, and candidate retrieval.
-* **Services**
+| Tier | Technology |
+| :--- | :--- |
+| **Frontend** | React, Vite, React Router, Axios |
+| **Backend** | Java 17, Spring Boot, Spring Security, Spring Data JPA |
+| **AI Microservice** | Python, FastAPI, PDFPlumber, python-docx |
+| **Database** | PostgreSQL |
+| **DevOps** | Docker, Docker Compose, GitHub Actions |
 
-  * `CandidateSaveService` saves AI analysis results to the database.
-* **Repositories**
-
-  * `CandidateRepository`, `SkillRepository`, `FeedbackRepository`, `InterviewQuestionRepository`
-* **Database**
-
-  * PostgreSQL schema `cv_screener` for candidates, skills, feedback, interview questions.
-* **Integration**
-
-  * Calls Python microservice (`/analyze`) for CV parsing and AI analysis.
-
----
-
-### 3. **Python Microservice (FastAPI)**
-
-* **File Parser**
-
-  * Extracts text from uploaded PDF/DOCX CVs.
-* **AI Analysis**
-
-  * Extracts skills, calculates score, generates interview questions and feedback.
-  * *(Planned)* → Integrate with a free LLM (e.g., Ollama Mistral or Hugging Face model).
-
----
-
-## 🔌 Data Flow
-
-1. User uploads CV via React frontend.
-2. Spring Boot backend stores file temporarily and sends it to Python microservice.
-3. Python microservice parses and analyzes the CV, returning structured data.
-4. Spring Boot saves the analysis in PostgreSQL.
-5. Frontend fetches ranking and displays it.
-6. Clicking a candidate shows detailed skills, feedback, and interview questions.
-
----
+-----
 
 ## 🚀 Getting Started
 
-### **Backend (Spring Boot)**
+### Prerequisites
 
-```bash
-cd java_spring_boot_backend
-./mvnw spring-boot:run
-```
+  * Java 17+
+  * Node.js 20+
+  * Python 3.11+
+  * Docker and Docker Compose
+  * A running PostgreSQL instance
 
-### **Python Microservice**
+### Local Setup
 
-```bash
-cd python_ai_cv_microservice
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+1.  **Clone the repository:**
 
-### **Frontend (React + Vite)**
+    ```bash
+    git clone https://github.com/letartap/ai-cv-screener.git
+    cd ai-cv-screener
+    ```
 
-```bash
-cd react_frontend\cv-screener-frontend
-npm install
-npm run dev
-```
+2.  **Configure Environment Variables:**
+    Create a `.env` file in the `java_spring_boot_backend/cv_screener_backend` directory with the following content:
 
----
+    ```
+    DB_USERNAME=<your_postgres_username>
+    DB_PASSWORD=<your_postgres_password>
+    JWT_SECRET=<your_super_secret_jwt_key>
+    ```
 
-## 🗂️ Project Structure
+3.  **Run the Backend (Spring Boot):**
 
-```
-root/
-│── cv_screener_backend/       # Spring Boot backend
-│── python_ai_cv_microservice/ # FastAPI Python service
-│── frontend/                  # React + Vite frontend
-│── docs/                      # Documentation (architecture.puml, diagrams, etc.)
-```
+    ```bash
+    cd java_spring_boot_backend/cv_screener_backend
+    ./mvnw spring-boot:run
+    ```
 
----
+    The backend will be available at `http://localhost:8080`.
+
+4.  **Run the Python Microservice:**
+    In a new terminal:
+
+    ```bash
+    cd python_ai_cv_microservice
+    pip install -r requirements.txt
+    uvicorn app.main:app --reload
+    ```
+
+    The microservice will be available at `http://localhost:8000`.
+
+5.  **Run the Frontend (React):**
+    In another terminal:
+
+    ```bash
+    cd react_frontend/cv-screener-frontend
+    npm install
+    npm run dev
+    ```
+
+    The frontend will be available at `http://localhost:5173`.
+
+-----
+
+## 🔌 API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/auth/register` | Register a new user. |
+| `POST` | `/auth/login` | Login and receive a JWT. |
+
+### Candidates (Requires Authentication)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/candidates/upload` | Upload a new CV for analysis. |
+| `GET` | `/candidates/ranking` | Get the ranked list of all candidates. |
+| `GET` | `/candidates/{id}` | Get detailed information for a specific candidate. |
+
+-----
 
 ## 📜 License
 
-MIT License
+This project is licensed under the MIT License.
