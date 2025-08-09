@@ -1,32 +1,45 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function CandidateDetailPage() {
   const { id } = useParams();
   const [candidate, setCandidate] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCandidate = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/candidates/${id}`);
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
+        const res = await axios.get(`http://localhost:8080/candidates/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
         setCandidate(res.data);
       } catch (err) {
-        console.error("Failed to fetch candidate details", err);
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            navigate("/login");
+        } else {
+            console.error("Failed to fetch candidate details", err);
+        }
       }
     };
     fetchCandidate();
-  }, [id]);
+  }, [id, navigate]);
 
   if (!candidate) return <p>Loading candidate details...</p>;
-
   return (
-    <div style={{ padding: "20px" }}>
-      <Link to="/ranking">← Back to Ranking</Link>
+    <div className="container">
+      <Link to="/ranking" className="back-link">← Back to Ranking</Link>
       <h1>{candidate.name}</h1>
       <p>Email: {candidate.email}</p>
       <p>Score: {candidate.score}</p>
-
       <h2>Skills</h2>
       <ul>
         {candidate.skills?.map((s) => (

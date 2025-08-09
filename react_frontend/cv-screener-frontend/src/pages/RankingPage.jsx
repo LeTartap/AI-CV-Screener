@@ -1,32 +1,45 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function RankingPage() {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRanking = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/candidates/ranking");
-        // console.log("API raw data:", res.data);
-        // setCandidates(res.data);
-        console.log("Is array?", Array.isArray(res.data));
-        console.log("Length:", res.data.length);
-        console.log("First item:", res.data[0]);
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          navigate("/login"); // Redirect if not logged in
+          return;
+        }
 
+        const res = await axios.get(
+          "http://localhost:8080/candidates/ranking",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (Array.isArray(res.data)) {
           setCandidates(res.data);
-        } else if (res.data?.content && Array.isArray(res.data.content)) {
-          setCandidates(res.data.content);
         } else {
           console.error("Unexpected ranking API format", res.data);
           setCandidates([]);
         }
       } catch (err) {
-        console.error("Failed to fetch ranking", err);
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          navigate("/login"); // Redirect on auth error
+        } else {
+          console.error("Failed to fetch ranking", err);
+        }
         setCandidates([]);
       } finally {
         setLoading(false);
@@ -34,16 +47,14 @@ export default function RankingPage() {
     };
 
     fetchRanking();
-  }, []);
+  }, [navigate]);
 
   if (loading) return <p>Loading ranking...</p>;
-
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="container">
       <h1>Candidate Ranking</h1>
-
       {Array.isArray(candidates) && candidates.length > 0 ? (
-        <table border="1" cellPadding="8">
+        <table className="ranking-table">
           <thead>
             <tr>
               <th>Rank</th>
