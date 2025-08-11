@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JWT Implementation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .header { background-color: #f0f0f0; font-weight: bold; }
+        .code { background-color: #f8f8f8; padding: 10px; font-family: monospace; }
+        .issue { background-color: #ffe6e6; }
+        .fix { background-color: #e6ffe6; }
+    </style>
+</head>
+<body>
+    <h1>JWT Token Authentication Fix - AI CV Screener</h1>
+    
+    <div class="section">
+        <div class="header">Issue Identified</div>
+        <p>The UploadPage component was missing JWT authentication headers when making POST requests to protected endpoints.</p>
+        <div class="issue">
+            <p><strong>Problem:</strong> Upload requests to <code>/candidates/upload</code> would fail with 401/403 errors because no Authorization header was being sent.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="header">Before Fix</div>
+        <div class="code issue">
+// Original UploadPage.jsx - NO Authorization header
+const res = await axios.post("http://localhost:8080/candidates/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+});
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="header">After Fix</div>
+        <div class="code fix">
+// Fixed UploadPage.jsx - WITH Authorization header
+const token = localStorage.getItem("accessToken");
+if (!token) {
+    navigate("/login");
+    return;
+}
+
+const res = await axios.post("http://localhost:8080/candidates/upload", formData, {
+    headers: { 
+        "Content-Type": "multipart/form-data",
+        "Authorization": `Bearer ${token}`
+    },
+});
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="header">Improvements Made</div>
+        <ul>
+            <li>✅ Added Authorization header with Bearer token to upload requests</li>
+            <li>✅ Added token validation before making requests</li>
+            <li>✅ Added proper error handling for authentication failures (401/403)</li>
+            <li>✅ Automatic redirect to login on authentication errors</li>
+            <li>✅ Added success feedback display after upload</li>
+            <li>✅ Fixed linting errors (unused variables)</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <div class="header">JWT Flow Now Complete</div>
+        <ol>
+            <li>User logs in → JWT token stored in localStorage</li>
+            <li>ProtectedRoute checks for token presence</li>
+            <li>All API calls (Upload, Ranking, Candidate Details) include Authorization header</li>
+            <li>Backend validates JWT token on all protected endpoints</li>
+            <li>Automatic logout/redirect on token expiration or invalid tokens</li>
+        </ol>
+    </div>
+</body>
+</html>
