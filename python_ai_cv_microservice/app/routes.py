@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, Form
-from app.services import parser, skill_extractor, scorer, feedback
+from app.services import parser, skill_extractor, scorer, gemini_service # Import gemini_service
 from app.services.models import AnalysisResponse
 
 router = APIRouter()
@@ -15,9 +15,9 @@ async def analyze_cv(file: UploadFile = File(...), candidate_name: str = Form(No
     # 3. Score candidate
     score = scorer.calculate_score(detected_skills)
 
-    # 4. Generate feedback & questions
-    feedback_msg = feedback.generate_feedback(detected_skills)
-    questions = feedback.generate_questions(detected_skills)
+    # 4. Generate feedback & questions using Gemini
+    feedback_msg = gemini_service.generate_gemini_feedback(text, detected_skills)
+    questions = gemini_service.generate_gemini_questions(detected_skills)
 
     return AnalysisResponse(
         candidate=candidate_name or file.filename,
